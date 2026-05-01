@@ -1,0 +1,46 @@
+# -------------------------------------------------------------
+# ENVIRONMENTS & CACHES
+# -------------------------------------------------------------
+venv/
+env/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.log
+.DS_Store
+
+# -------------------------------------------------------------
+# GLOBAL HEAVY FILES (Never upload these)
+# -------------------------------------------------------------
+*.pdf
+*.zip
+*.tar.gz
+*.csv
+*.xlsx
+*.xls
+*.db
+*.sqlite
+
+# -------------------------------------------------------------
+# DYNAMIC DATA FOLDERS (Ignore all text/json data inside these)
+# -------------------------------------------------------------
+# This covers both the old 'section2' structure and the new 'ArthLLM-2B/data/raw' structure
+section2/raw/**/*.txt
+section2/raw/**/*.json
+ArthLLM-2B/data/raw/**/*.txt
+ArthLLM-2B/data/raw/**/*.json
+
+# Ignore manifest tracking files
+_manifest.json
+*_progress.json
+
+# -------------------------------------------------------------
+# EXCEPTIONS (Files that MUST be uploaded)
+# -------------------------------------------------------------
+!README.md
+!Project_plan.md
+!pipeline_status.md
+!requirements.txt
+!scratch_wp.txt

@@ -1,0 +1,35 @@
+# Core ML
+torch>=2.2.0
+transformers>=4.40.0
+tokenizers>=0.19.0
+datasets>=2.18.0
+accelerate>=0.29.0
+
+# Training
+bitsandbytes>=0.43.0        # 8-bit AdamW
+wandb>=0.16.0               # loss tracking
+# flash-attn>=2.5.0           # Flash Attention 2 (install separately on GPU)
+
+# Data pipeline
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pdfplumber>=0.10.0
+PyPDF2>=3.0.0
+selenium>=4.18.0
+scrapy>=2.11.0
+trafilatura>=1.8.0          # clean web text extraction
+warcio>=1.7.4               # Common Crawl WARC parsing
+cdx-toolkit>=0.9.9          # Common Crawl index search
+mwparserfromhell>=0.6.5     # Wikipedia dump parsing
+
+# Dedup + quality
+datasketch>=1.6.4           # MinHash deduplication
+langdetect>=1.0.9           # language detection
+
+# Utils
+tqdm>=4.66.0
+numpy>=1.26.0
+pandas>=2.2.0
+python-dotenv>=1.0.0
+schedule>=1.2.0
+python-telegram-bot>=20.0   # Telegram notifications
