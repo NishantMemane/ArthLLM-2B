@@ -1,0 +1,975 @@
+================================================================================
+ArthLLM — Complete Data Sources (English-Only)
+Target: 40–42B Tokens | 60% Indian English | 40% Global English
+================================================================================
+
+STRATEGY
+--------
+ArthLLM is an English-only Indian finance LLM.
+All training data is in English. No Hindi, Hinglish, or regional languages.
+Multilingual support will be handled via a Translation Bridge (IndicTrans2)
+at inference time — not baked into the model weights.
+
+This keeps the tokenizer at 32K vocab, maximizes parameter efficiency,
+and ensures every token of training teaches financial reasoning.
+
+
+THE FULL TOKEN BUDGET
+---------------------
+Category                          Sources                              Tokens
+──────────────────────────────────────────────────────────────────────────────
+HuggingFace Datasets              7 Global English datasets             4.0B
+Government & Regulatory (Indian)  RBI, SEBI, Budget, MCA, others        7.0B
+Stock Exchange Filings            BSE, NSE, Earnings calls              6.0B
+Indian English News               Common Crawl, RSS, Kaggle             6.0B
+Global Finance & Regulatory       EDGAR, Fed, ECB, BIS, IMF             6.0B
+Research Papers & Academia        arXiv, SSRN, NBER, IIM, ICAI          5.0B
+Books & Textbooks                 MIT OCW, OpenStax, Gutenberg, IA      2.0B
+Global English News               Reuters, Bloomberg via Common Crawl   3.0B
+Synthetic Generation              Q&A pairs from real docs              2.0B
+──────────────────────────────────────────────────────────────────────────────
+PRE-DEDUP TOTAL                                                       ~41.0B
+After dedup + quality filter (~5-8% loss on high-quality corpus)      ~38-39B
+──────────────────────────────────────────────────────────────────────────────
+
+
+================================================================================
+SECTION 1 — HUGGINGFACE DATASETS (~4B)
+================================================================================
+The easiest tier. Downloads via the datasets library.
+No scraping, no legal issues, completely structured.
+ENGLISH-ONLY — all Hindi/multilingual datasets removed.
+
+Global English Datasets:
+  eloukas/edgar-corpus                      ~3B tokens
+    Full text of SEC 10-K annual filings. The single largest
+    clean finance dataset on HuggingFace. Run overnight.
+
+  sujet-ai/Sujet-Finance-Instruct-177k     ~100M tokens
+    High-quality finance instruction pairs. Fine-tuning gold.
+
+  gbharti/finance-alpaca                    ~50M tokens
+    Finance instruction tuning data.
+
+  FinGPT/fingpt-sentiment-train             ~50M tokens
+    Labeled financial sentiment data.
+
+  zeroshot/twitter-financial-news           ~30M tokens
+    Financial tweets with sentiment labels.
+
+  nickmuchi/financial-classification        ~20M tokens
+    Classified financial news.
+
+  ChanceFocus/flare-finqa                   ~30M tokens
+    Financial Q&A benchmark data.
+
+REMOVED (not English):
+  ✗ ai4bharat/sangraha            — Hindi corpus
+  ✗ ai4bharat/IndicCorp           — Multilingual
+  ✗ ashishkgpian/hindi_text_corpus — Hindi
+  ✗ kiddothe2b/financial_reports  — Removed from Hub
+
+
+================================================================================
+SECTION 2 — INDIAN GOVERNMENT & REGULATORY (~7B)
+================================================================================
+Your competitive moat. No other finance LLM has this data.
+All publicly available, legally downloadable. All published in English.
+
+Reserve Bank of India — 3B tokens ⭐⭐⭐
+  The single most important source. All RBI publications are in English.
+  URL: rbi.org.in
+  Method: HTTP requests + BeautifulSoup + pdfplumber. 3-second delays.
+
+  Monetary Policy Statements
+    Every MPC meeting since 2016. Inflation, growth, repo rate reasoning.
+
+  Annual Reports
+    30+ years. Each 300–400 pages. Indian banking, macroeconomy, forex,
+    financial stability. ~300M tokens from this alone.
+
+  RBI Circulars
+    10,000+ circulars covering all Indian banking regulation.
+
+  Master Directions
+    Consolidated regulations: NBFCs, banks, forex, payment systems, KYC.
+    Each 50–200 pages of precise regulatory English.
+
+  Working Papers
+    Academic-quality research by RBI economists. Thousands of papers.
+
+  Financial Stability Report
+    Twice yearly since 2010. Indian financial system risk analysis.
+
+  RBI Bulletin
+    Monthly since 1947. 77 years × 12 months × 7 articles = 6,400+ articles.
+
+  Speeches
+    Every RBI Governor and Deputy Governor speech.
+    Complex policies explained in plain English.
+
+  DBIE Database
+    Decades of Indian macroeconomic data with explanatory text.
+
+
+SEBI — 1.5B tokens ⭐⭐⭐
+  Securities and Exchange Board of India. All content in English.
+  URL: sebi.gov.in
+
+  Circulars — Thousands since 1992. Market regulation, trading rules.
+  Regulations — Securities Contracts Act, SEBI Act, Takeover Code,
+                Insider Trading Regulations, Listing Obligations.
+  Consultation Papers — 50–150 page policy analysis documents.
+  Annual Reports — Enforcement, market stats, regulatory developments.
+  Enforcement Orders — Market manipulation, insider trading narratives.
+  Board Meeting Decisions — Minutes from every board meeting.
+  FAQs — Already in Q&A format. IPO, mutual funds, derivatives.
+
+
+Ministry of Finance — Union Budget — 500M tokens ⭐⭐⭐
+  URL: indiabudget.gov.in. All free PDFs in English.
+
+  Budget Speeches 1947–2026 — 76 speeches. Policy reasoning.
+  Economic Survey — Annual. Two volumes, 300 pages each.
+  Finance Bill, Expenditure Budget, Receipts Budget.
+
+
+MCA — Ministry of Corporate Affairs — 1B tokens
+  Companies Act 2013 — 470 sections, 7 schedules.
+  NCLT Orders — Corporate disputes, mergers, insolvency. nclt.gov.in
+  NCLAT Orders — Appeals. Higher-quality reasoning.
+  IBBI Orders — All insolvency cases under IBC 2016.
+
+
+Other Indian Regulators — 1B tokens
+  IRDAI      — Insurance regulations, circulars, guidelines.
+  PFRDA      — NPS regulations, circulars.
+  GST Council — All GST circulars, notifications, FAQs since July 2017.
+  CBDT       — Income tax circulars, notifications.
+  Income Tax Act — Complete text with all amendments.
+  FEMA       — Foreign Exchange Management Act. FII/FDI regulations.
+  CCI        — Competition Commission orders on mergers.
+
+
+================================================================================
+SECTION 3 — STOCK EXCHANGE FILINGS (~6B)
+================================================================================
+High-value Indian corporate data. All filings are in English.
+
+BSE India — 2B tokens
+  URL: bseindia.com
+  5,000+ listed companies. All filings publicly available.
+  Method: Selenium with randomized delays, off-peak, User-Agent rotation.
+
+  Annual Reports — 5,000 companies × 80 pages × 4 years = ~1.6B tokens.
+  Quarterly Results — 5,000 × 4 quarters × 5 years = 100,000 filings.
+  Corporate Announcements — Dividends, splits, buybacks, management changes.
+  Shareholding Patterns — Promoter, FII, DII holding every quarter.
+
+
+NSE India — 2B tokens
+  URL: nseindia.com
+  Method: Session-cookie trick → JSON responses.
+
+  Corporate Filings, Financial Results, Annual Reports.
+  Governance Reports — Board composition, related party transactions.
+  Insider Trading Disclosures — Every director/promoter trade.
+
+
+Earnings Call Transcripts — 2B tokens ⭐⭐⭐
+  Most differentiated data. All conducted in English.
+
+  Sources:
+    Screener.in       — Transcript PDFs for Nifty 500.
+    BSE Announcements — Filter "Transcript of Earnings Call".
+    Trendlyne         — Concall section. Free tier has good coverage.
+    Tijori Finance    — Additional aggregator.
+
+  Target: Nifty 500 × 5 years × 4 quarters = 10,000 transcripts.
+  ~100–200M high-quality tokens per batch. Scale to all BSE companies
+  with earnings calls for remaining volume.
+
+
+================================================================================
+SECTION 4 — INDIAN ENGLISH NEWS (~6B)
+================================================================================
+All English-language Indian financial journalism.
+Primary method: Common Crawl (legal, archived, structured).
+
+Common Crawl — Primary Method ⭐⭐⭐
+  Archives the public internet monthly since 2008. ~6B tokens.
+  Method: cdx-toolkit → WARC byte ranges → trafilatura for clean text.
+  Pull multiple years of archives for each domain to maximize volume.
+
+  Target domains (Indian financial publications):
+    economictimes.indiatimes.com    ~1.5B tokens
+      India's #1 financial newspaper. Markets, policy, corporate.
+      Archives going back 15+ years in Common Crawl.
+
+    moneycontrol.com                ~1.2B tokens
+      India's largest financial portal. Stock analysis, MFs, IPOs.
+
+    livemint.com                    ~800M tokens
+      High-quality long-form financial journalism.
+
+    business-standard.com           ~800M tokens
+      Oldest Indian business newspaper. Banking, RBI, governance.
+
+    financialexpress.com            ~600M tokens
+      Taxation, GST, budget, economic policy.
+
+    ndtvprofit.com                  ~300M tokens
+      Business news, market commentary.
+
+    thehindubusinessline.com        ~300M tokens
+      Quality financial journalism from The Hindu group.
+
+    outlookindia.com/business       ~200M tokens
+      Business section of Outlook magazine.
+
+    freepressjournal.in/business    ~150M tokens
+      Financial coverage from Free Press Journal.
+
+    deccanherald.com/business       ~150M tokens
+      South Indian English business news.
+
+
+Kaggle News Datasets — 500M tokens (Instant Download)
+  India Headlines News Dataset     — Headlines with categories.
+  News Summary Dataset             — Articles with summaries.
+  Times of India Dataset           — Years of TOI articles.
+  Indian Financial News Dataset    — Market-specific news.
+
+
+RSS Feeds — Ongoing Collection — 500M tokens
+  Run collector every 6 hours. Fresh articles accumulate in background.
+  ET markets, Moneycontrol, LiveMint, Business Standard feeds.
+
+
+================================================================================
+SECTION 5 — GLOBAL ENGLISH NEWS (~3B) [NEW]
+================================================================================
+English financial journalism from global publications.
+All via Common Crawl — same method as Section 4.
+
+Common Crawl — Global Financial Domains ⭐⭐
+  Method: cdx-toolkit → WARC → trafilatura. Same pipeline.
+
+  reuters.com/business             ~800M tokens
+    Global wire service. Markets, M&A, commodities, forex.
+
+  cnbc.com                         ~600M tokens
+    US and global markets. Earnings coverage, Fed policy.
+
+  ft.com (Financial Times)         ~400M tokens
+    Premium global financial journalism. Some paywalled content
+    still in Common Crawl from before paywall or preview pages.
+
+  wsj.com (Wall Street Journal)    ~300M tokens
+    Similar to FT — partial coverage from Common Crawl archives.
+
+  marketwatch.com                  ~400M tokens
+    Market data, commentary, personal finance.
+
+  investopedia.com                 ~300M tokens
+    Financial education content. Definitions, tutorials, guides.
+    Excellent for concept explanation training.
+
+  seekingalpha.com                 ~200M tokens
+    Equity research, earnings analysis, investment theses.
+
+Why include global news? ArthLLM must understand global events
+that affect Indian markets: Fed rate decisions → FII flows → Nifty,
+oil prices → rupee → Indian inflation, US recession → IT sector.
+
+
+================================================================================
+SECTION 6 — GLOBAL FINANCE & REGULATORY (~6B)
+================================================================================
+Builds universal financial reasoning. All English.
+
+SEC EDGAR — 5B tokens ⭐⭐⭐
+  URL: efts.sec.gov/LATEST/search-index
+  Free API, no authentication, 10 req/sec rate limit.
+
+  10-K Annual Reports     — ~3B (also via eloukas/edgar-corpus on HF)
+  10-Q Quarterly Reports  — ~1B (extend via direct EDGAR API)
+  8-K Current Reports     — ~500M (material events, earnings releases)
+  DEF 14A Proxy Statements — ~300M (executive compensation, governance)
+  S-1 Registration        — ~200M (IPO prospectuses)
+
+  Why for Indian LLM? Financial reporting structure is universal.
+  Reasoning about 10-Ks transfers to reading Indian annual reports.
+
+
+Federal Reserve — 500M tokens ⭐⭐ [NEW]
+  URL: federalreserve.gov
+  All publications free, English, high quality.
+
+  FOMC Meeting Minutes — Every Fed meeting since 1993.
+  FOMC Statements — Rate decisions with economic reasoning.
+  Beige Book — 8× per year. Economic conditions across 12 districts.
+  Fed Speeches — Every governor and regional president speech.
+  Staff Working Papers (FEDS) — Academic research by Fed economists.
+  Financial Stability Reports — Twice yearly since 2018.
+  Supervision & Regulation Reports — Banking system health.
+
+
+European Central Bank — 200M tokens [NEW]
+  URL: ecb.europa.eu
+  All publications in English.
+
+  Monthly Bulletin, Economic Bulletin, Working Papers,
+  Financial Stability Review, Speeches, Research papers.
+
+
+Bank for International Settlements — 200M tokens [NEW]
+  URL: bis.org
+  The "central bank of central banks." All publications English.
+
+  BIS Quarterly Review, Working Papers, Annual Report,
+  Basel Committee publications (Basel III/IV — banking regulation).
+  Covers global financial stability, cross-border capital flows.
+
+
+IMF — 300M tokens [NEW]
+  URL: imf.org
+  Massive English publication archive.
+
+  World Economic Outlook — Biannual. Global economic analysis.
+  Global Financial Stability Report — Financial system risks.
+  Article IV Consultations (India) — IMF's assessment of Indian economy.
+  Working Papers — Thousands of academic papers on economics.
+  Finance & Development Magazine — Quarterly since 1964.
+  Country Reports — Detailed economic analysis per country.
+
+
+World Bank — 200M tokens [NEW]
+  URL: worldbank.org
+  All publications English.
+
+  World Development Report — Annual flagship publication.
+  India Development Update — Periodic India economic analysis.
+  Policy Research Working Papers — Thousands of papers.
+  Doing Business Reports — Business environment analysis.
+  Global Economic Prospects — Biannual economic forecasts.
+
+
+Wikipedia Finance — 1B tokens
+  English Wikipedia full dump from dumps.wikimedia.org.
+  Process with mwparserfromhell for clean article text.
+
+  Categories to keep (recursive):
+    Finance, Economics, Banking, Stock markets, Insurance, Investment,
+    Accounting, Taxation, Monetary policy, Financial markets,
+    Indian economy, Reserve Bank of India, SEBI, BSE, NSE,
+    Corporate finance, Venture capital, Private equity, Hedge funds,
+    Derivatives, Options, Futures, Bonds, Fixed income,
+    and all subcategories.
+
+
+================================================================================
+SECTION 7 — RESEARCH PAPERS & ACADEMIA (~5B)
+================================================================================
+Highest density of expert knowledge per token. All English.
+
+arXiv Finance & Economics — 4B tokens ⭐⭐⭐
+  Full PDF papers, not just abstracts (40–100× more data per paper).
+  ~200,000+ papers across target categories.
+
+  Core categories:
+    q-fin.*     — All 9 sub-categories: Computational Finance, Economics,
+                  General Finance, Mathematical Finance, Portfolio Management,
+                  Pricing of Securities, Risk Management, Statistical Finance,
+                  Trading and Microstructure.
+    econ.*      — Econometrics, General Economics, Theoretical Economics.
+
+  Adjacent categories (finance-relevant):
+    stat.AP     — Applied Statistics. Many finance applications.
+    cs.CE       — Computational Engineering. Algorithmic trading.
+    math.PR     — Probability. Options pricing, stochastic calculus.
+    cs.AI       — AI papers on financial applications (filter by keyword).
+    cs.LG       — Machine learning for finance (filter by keyword).
+
+  Average paper = 20–30 pages = 6,000–15,000 tokens.
+  Expert-written, peer-reviewed content.
+
+
+ICAI Study Material — 800M tokens ⭐⭐⭐
+  Institute of Chartered Accountants of India. Free at icai.org.
+  All material in English. Textbook-quality Indian finance.
+
+  CA Foundation   — Accounting, Business Laws, Business Mathematics.
+  CA Intermediate — Advanced Accounting, Corporate Laws, Taxation,
+                    Cost Accounting, Auditing, Financial Management.
+  CA Final        — Financial Reporting (Ind AS), Strategic Financial
+                    Management, Advanced Auditing, Tax Laws (Direct + GST).
+
+  ~48 subjects × 400–600 pages = ~24,000 pages = 400M–800M tokens.
+
+
+SSRN — Finance & Economics Papers — 1B tokens ⭐⭐
+  Social Science Research Network. English academic papers.
+  Most papers free as PDFs. Bulk data access program available.
+
+  Indian finance research:
+    BSE/NSE market studies, RBI monetary policy analysis,
+    SEBI regulation impact, Indian banking (NPAs, PSU banks, NBFCs),
+    emerging market finance (capital flows, FII, currency).
+
+  Global finance research:
+    Asset pricing, corporate finance, behavioral finance,
+    market microstructure, financial intermediation.
+
+
+NBER Working Papers — 500M tokens ⭐⭐ [NEW]
+  National Bureau of Economic Research. nber.org
+  Premier US economics research. Most papers freely accessible.
+
+  Corporate Finance, Asset Pricing, International Finance,
+  Monetary Economics, Public Economics.
+  ~30,000+ working papers, many on finance topics.
+
+
+IIM and ISB Working Papers — 400M tokens ⭐⭐
+  All written in English. India-focused financial research.
+
+  IIM Ahmedabad   — iima.ac.in/research/working-papers
+  IIM Bangalore   — iimb.ac.in/research
+  IIM Calcutta    — iimcal.ac.in/research/working-papers
+  IIM Lucknow, Kozhikode, Indore.
+  ISB Hyderabad   — isb.edu
+  IGIDR Mumbai    — Macro and financial research on India.
+  NIPFP Delhi     — Fiscal policy, taxation, GST research.
+
+
+CFA Institute Research — 200M tokens [NEW]
+  cfainstitute.org/research
+  Financial Analysts Journal — Academic research on investing.
+  Research Foundation publications — Free monographs on finance topics.
+  Practitioner-oriented, bridges theory and practice.
+
+
+================================================================================
+SECTION 8 — BOOKS & TEXTBOOKS (~2B)
+================================================================================
+Structured educational content. All English.
+
+MIT OpenCourseWare Finance — 300M tokens
+  Complete course materials under Creative Commons. Free and legal.
+
+  Finance Theory I & II, Investments, Financial Management,
+  Options and Derivatives, Financial Engineering.
+  Each: 200–400 pages of notes + problem sets with solutions.
+
+  Also collect from:
+    Wharton, Stanford, Chicago — faculty pages and course websites.
+    Yale Open Courses (Financial Markets by Robert Shiller).
+    Coursera/edX finance course transcripts (where publicly available).
+
+
+OpenStax Finance Textbooks — 200M tokens
+  Peer-reviewed open textbooks. CC-BY license. Free PDF.
+
+  Principles of Finance, Financial Accounting,
+  Principles of Macroeconomics, Principles of Microeconomics,
+  Introductory Business Statistics.
+
+
+NCERT Economics — 50M tokens
+  Class 11 and 12 NCERT economics textbooks.
+  Available at ncert.nic.in. English language.
+  Foundation of financial literacy for millions of Indians.
+
+
+Project Gutenberg — Economics Classics — 150M tokens
+  Public domain. Completely free.
+
+  The Wealth of Nations (Adam Smith)
+  Principles of Economics (Alfred Marshall)
+  The General Theory (Keynes)
+  Theory of Interest (Irving Fisher)
+  Ricardo, Mill, Veblen.
+
+
+Internet Archive — Finance Books — 1B tokens
+  archive.org scanned books. English language.
+
+  History of the Reserve Bank of India — Multi-volume official history.
+  Indian Economy textbooks — College textbooks on Indian economy.
+  Finance classics — Security Analysis, The Intelligent Investor,
+                     Common Stocks and Uncommon Profits, etc.
+  Indian banking history — Nationalization, financial system evolution.
+  Corporate governance — Indian and global corporate law texts.
+
+
+Corporate Finance Institute (CFI) — 100M tokens [NEW]
+  corporatefinanceinstitute.com
+  Free financial modeling guides, valuation tutorials,
+  accounting guides, Excel templates with explanations.
+  All publicly accessible educational content.
+
+
+Zerodha Varsity — 100M tokens [NEW]
+  zerodha.com/varsity
+  India's most popular free stock market education platform.
+  All in English. Covers:
+    Stock markets, technical analysis, fundamental analysis,
+    futures & options, currencies, commodities, personal finance,
+    risk management, trading psychology.
+  Written specifically for Indian retail investors.
+
+
+================================================================================
+SECTION 9 — SYNTHETIC GENERATION (~2B)
+================================================================================
+Do this LAST. Use real collected documents as seeds.
+Goal: Q&A pairs that teach reasoning, not just pattern recognition.
+All generated in English.
+
+Seven task types:
+
+  1. SEBI Circular Explanations — 200,000 pairs
+     Circular → retail investor question → plain-English answer.
+
+  2. RBI Policy Implications — 200,000 pairs
+     "What does this repo rate hike mean for home loan EMIs?"
+     Ground every answer in actual RBI documents.
+
+  3. Quarterly Result Summaries — 200,000 pairs
+     Quarterly filing → summary in Indian financial journalism style.
+
+  4. Regulatory Q&A — 300,000 pairs
+     NBFC net worth, insider trading timelines, IPO anchor lock-in.
+
+  5. Lakh-Crore Number Conversions — 100,000 pairs
+     Rule-based (no API). 1,00,000 = 1 lakh, 1,00,00,000 = 1 crore.
+
+  6. Indian Finance Concept Explanations — 200,000 pairs
+     ASBA, Nifty 50 vs 500, promoter pledging, SME IPO, STT.
+
+  7. Global Finance Reasoning — 200,000 pairs [NEW]
+     "How does a Fed rate hike affect Indian FII flows?"
+     "What happens to Nifty IT when USD/INR depreciates?"
+     Cross-market reasoning connecting global events to Indian impact.
+
+API options:
+  Google Gemini free tier — 15 RPM. Zero cost. Start early.
+  Claude API             — Paid. Highest quality.
+  OpenRouter             — Cheapest paid rates.
+
+Total: ~1.4M pairs × ~1,400 tokens avg = ~2B tokens.
+
+
+================================================================================
+DATA QUALITY CHECKLIST — Apply to Every Source
+================================================================================
+Before any text enters training:
+
+  1. Remove HTML noise
+     Strip all tags, nav elements, headers, footers, cookie banners,
+     ads, subscription prompts.
+
+  2. Normalize the rupee symbol
+     Rs., Rs, INR, ₹ with spaces → all become ₹ consistently.
+
+  3. Preserve Indian number formatting
+     1,00,000 and 1,00,00,000 stay as-is.
+     Do NOT convert to Western 100,000 or 10,000,000.
+
+  4. Minimum length filter
+     Remove any document under 100 characters.
+
+  5. Finance relevance check
+     Every document must contain at least one finance keyword.
+
+  6. Language filter
+     Keep ENGLISH ONLY.
+     Remove all non-English text.
+
+  7. Deduplication
+     MinHash LSH at 85% Jaccard similarity.
+     Same content across multiple news sites = single copy only.
+
+  8. Encoding
+     Clean UTF-8. Fix PDF extraction artifacts (ligatures, breaks).
+
+  9. PII removal
+     Strip email addresses, phone numbers, personal identifiers
+     that appear in scraped content.
+
+
+================================================================================
+FINAL TOKEN TALLY — ENGLISH ONLY — 40-42B TARGET
+================================================================================
+
+Source                                          Tokens     Split
+────────────────────────────────────────────────────────────────
+INDIAN ENGLISH (60% = ~25B tokens)
+────────────────────────────────────────────────────────────────
+RBI (all documents)                              3.0B     Indian
+SEBI (all documents)                             1.5B     Indian
+Union Budget + Economic Survey                   0.5B     Indian
+MCA + NCLT + IBBI                                1.0B     Indian
+Other regulators (IRDAI, CBDT, GST, FEMA, CCI)  1.0B     Indian
+BSE filings + annual reports                     2.0B     Indian
+NSE filings                                      2.0B     Indian
+Earnings call transcripts                        2.0B     Indian
+Indian news (Common Crawl, 10 domains)           6.0B     Indian
+Kaggle news datasets                             0.5B     Indian
+RSS feed collection                              0.5B     Indian
+Indian HuggingFace datasets (English only)       0.9B     Indian
+ICAI study material                              0.8B     Indian
+IIM + ISB + IGIDR working papers                 0.4B     Indian
+Zerodha Varsity                                  0.1B     Indian
+NCERT Economics                                  0.1B     Indian
+Indian books (Internet Archive)                  1.0B     Indian
+Synthetic Q&A generation                         2.0B     Indian
+────────────────────────────────────────────────────────────────
+Indian Subtotal                                 25.3B     60%
+────────────────────────────────────────────────────────────────
+
+GLOBAL ENGLISH (40% = ~17B tokens)
+────────────────────────────────────────────────────────────────
+SEC EDGAR (10-K + 10-Q + 8-K + S-1 + proxy)     5.0B     Global
+arXiv full papers (q-fin, econ, stat, cs)        4.0B     Global
+Global news (Common Crawl — Reuters, CNBC etc)   3.0B     Global
+SSRN finance & economics papers                  1.0B     Global
+NBER working papers                              0.5B     Global
+Federal Reserve publications                     0.5B     Global
+ECB + BIS publications                           0.4B     Global
+IMF + World Bank publications                    0.5B     Global
+Wikipedia English finance articles               1.0B     Global
+Global HuggingFace finance datasets              0.3B     Global
+MIT OCW + OpenStax + Yale Open Courses           0.5B     Global
+CFA Institute research                           0.2B     Global
+Project Gutenberg economics                      0.2B     Global
+CFI guides                                       0.1B     Global
+────────────────────────────────────────────────────────────────
+Global Subtotal                                 17.2B     40%
+────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────
+PRE-DEDUP TOTAL                                 42.5B
+After quality filter + dedup (5-8%)            ~39-40B
+────────────────────────────────────────────────────────────────
+Chinchilla optimal for 2B params                  40B   ✅
+────────────────────────────────────────────────────────────────
+
+NOTE ON DEDUP RATIO:
+The 5-8% loss estimate (not 10-15%) is because:
+  - Most sources are unique (regulatory docs, research papers, books)
+  - News is the main duplication risk, handled by source dedup
+  - We are NOT pulling the same content from multiple HF datasets
+  - Cross-source overlap (SEBI circular in news) caught by MinHash
+  - High-quality curated sources have much lower duplication than
+    raw web crawl
+
+
+    Great question. Let me break this down clearly — what goes in, and what comes out.
+
+---
+
+## What We Are Feeding ArthLLM
+
+Think of it in layers — from foundational to specialized.
+
+---
+
+### Layer 1 — The Rules of Indian Finance (7B tokens)
+**Sources: RBI, SEBI, MCA, Budget, IRDAI, GST, NCLT**
+
+This is the **law and policy layer.** Every regulation, circular, master direction, court order, and budget speech that governs Indian money.
+
+```
+What the model reads:
+  "An NBFC shall maintain a minimum Net Owned Fund 
+   of ₹10 crore as per RBI Master Direction 2016..."
+  
+  "SEBI circular SEBI/HO/CFD/DIL2/CIR/2021 regarding
+   pricing of preferential allotment..."
+   
+  "The MPC voted 4-2 to keep repo rate unchanged 
+   at 6.5% citing sticky core inflation..."
+```
+
+After seeing millions of these, the model learns the **entire framework** of how Indian finance is regulated.
+
+---
+
+### Layer 2 — What Indian Companies Actually Do (6B tokens)
+**Sources: BSE filings, NSE filings, Earnings call transcripts**
+
+This is the **corporate reality layer.** What 5,000+ Indian companies report every quarter, every year. Real numbers, real management commentary, real board decisions.
+
+```
+What the model reads:
+  "Revenue from operations stood at ₹4,250 crore 
+   in Q3FY24, a growth of 18% YoY. EBITDA margins 
+   contracted by 120bps due to elevated raw material costs..."
+   
+  "Promoter holding stands at 52.3%, unchanged QoQ.
+   FII holding increased from 18.2% to 19.7%..."
+   
+  "MD: We expect to commission the new Pune plant 
+   by Q1FY25, adding ₹800 crore to annual capacity..."
+```
+
+The model learns **how Indian businesses speak, report, and think.**
+
+---
+
+### Layer 3 — Daily Pulse of Indian Markets (7B tokens)
+**Sources: Economic Times, Moneycontrol, Mint, Business Standard, RSS feeds**
+
+This is the **market narrative layer.** Fifteen years of Indian financial journalism — every rally, every crash, every IPO, every RBI policy reaction.
+
+```
+What the model reads:
+  "Nifty surges 312 points as FIIs turn net buyers
+   after Fed signals rate pause..."
+   
+  "Adani Group stocks recover after Supreme Court 
+   gives clean chit to SEBI investigation..."
+   
+  "SME IPO sees 400x subscription on Day 3 as 
+   retail frenzy continues in primary markets..."
+```
+
+The model learns **market sentiment, cause-effect relationships, and Indian financial journalism style.**
+
+---
+
+### Layer 4 — Deep Financial Knowledge (9B tokens)
+**Sources: arXiv papers, ICAI material, SSRN, NBER, IIM research**
+
+This is the **academic and professional layer.** CA exam material, quantitative finance research, economics working papers.
+
+```
+What the model reads:
+  ICAI CA Final: "Under Ind AS 109, financial assets 
+   shall be classified into three categories based on 
+   the business model test and SPPI criterion..."
+   
+  arXiv paper: "We model Indian sovereign yield curve 
+   dynamics using Nelson-Siegel framework, finding 
+   RBI forward guidance has asymmetric effects..."
+   
+  IIM working paper: "FII ownership and stock return 
+   volatility: Evidence from NSE-listed firms..."
+```
+
+The model learns **professional-grade financial reasoning** — not just what things are called, but how they actually work.
+
+---
+
+### Layer 5 — Global Financial Context (17B tokens)
+**Sources: SEC EDGAR, Fed, IMF, World Bank, Reuters, Wikipedia finance**
+
+This is the **global foundation layer.** Why does ArthLLM need this? Because Indian markets don't exist in isolation.
+
+```
+What the model reads:
+  Fed minutes: "Committee members noted that persistent
+   inflation warranted maintaining restrictive stance..."
+   
+  SEC 10-K: "Risk factors include currency fluctuation,
+   particularly USD/INR movement affecting offshore..."
+   
+  IMF India Report: "India's current account deficit 
+   narrowed to 1.2% of GDP, supported by services exports..."
+```
+
+The model learns **how global events chain into Indian market impacts** — Fed hike → dollar strength → FII outflows → Nifty correction → rupee depreciation.
+
+---
+
+### Layer 6 — Reasoning Examples (2B tokens)
+**Sources: Synthetic Q&A generated from real documents**
+
+This is the **teaching layer.** Not raw documents, but explicit question-answer pairs that teach the model HOW to reason.
+
+```
+What the model reads:
+  Q: "What does a 25bps repo rate hike mean for a 
+      ₹50 lakh home loan at MCLR+0.5%?"
+  A: "RBI's repo rate hike of 25bps will likely 
+      transmit to MCLR within 3 months. On a ₹50 lakh
+      loan, this translates to approximately ₹850 
+      higher EMI per month assuming 20-year tenure..."
+      
+  Q: "SEBI has restricted trading in F&O for a stock.
+      What does this mean for retail investors?"
+  A: "When SEBI places a stock in the F&O ban period,
+      traders cannot take fresh positions in futures 
+      or options. Existing positions can only be 
+      squared off, not increased..."
+```
+
+---
+
+## What ArthLLM Will Be Able to Do
+
+Now the output side. Here's what the model can actually do after all this training.
+
+---
+
+### Ability 1 — Understand Indian Numbers Natively
+```
+Input  : "Company reported PAT of ₹1,25,43,000"
+Output : Correctly understands this as ₹1.25 crore
+         = approximately $150,000 USD
+         
+No existing model handles Indian number formatting.
+ArthLLM does it natively.
+```
+
+---
+
+### Ability 2 — Analyze Quarterly Results Like an Analyst
+```
+Input  : Paste a BSE filing Q3 result
+
+Output : Revenue grew 18% YoY but margins compressed.
+         Key concern is rising input costs eating into 
+         EBITDA. Management guidance of 15% topline 
+         growth for FY25 looks achievable given order 
+         book visibility. Working capital cycle has 
+         deteriorated — debtor days up from 45 to 58.
+         Watch for Q4 margin recovery.
+```
+
+---
+
+### Ability 3 — Explain Indian Regulations in Plain English
+```
+Input  : What is the SEBI LODR 2015 requirement for 
+         related party transactions?
+
+Output : Under SEBI LODR Regulation 23, listed companies
+         must obtain shareholder approval for RPTs 
+         exceeding 10% of annual consolidated turnover.
+         The audit committee must pre-approve all RPTs.
+         From April 2022, SEBI tightened this to require
+         approval from majority of minority shareholders
+         for material RPTs...
+```
+
+---
+
+### Ability 4 — Connect Global Events to Indian Impact
+```
+Input  : US Fed just hiked rates by 50bps. 
+         What happens to Indian markets?
+
+Output : A 50bps Fed hike typically triggers:
+         1. FII outflows from Indian equities as US 
+            bonds become relatively more attractive
+         2. USD strengthening → INR depreciation pressure
+         3. RBI may respond with its own rate action
+            to prevent excessive rupee weakness
+         4. IT sector benefits (USD revenues worth more)
+         5. Oil importers suffer (dollar-denominated oil 
+            becomes costlier in rupee terms)
+         Historical data suggests Nifty corrects 2-4% 
+         in the week following large Fed hikes...
+```
+
+---
+
+### Ability 5 — Classify Financial Sentiment
+```
+Input  : [SENTIMENT] "HDFC Bank Q3 net profit jumps 
+          33% YoY, asset quality improves, NIM expands"
+
+Output : Bullish — Strong earnings beat, improving 
+         fundamentals across key banking metrics.
+```
+
+---
+
+### Ability 6 — Detect Risk in Financial Disclosures
+```
+Input  : [RISK] "The company has pledged 68% of 
+          promoter shares. Cash and equivalents stand 
+          at ₹12 crore against current liabilities 
+          of ₹340 crore."
+
+Output : HIGH RISK — Critical warning flags:
+         1. Very high promoter pledge (68%) suggests
+            promoter funding stress
+         2. Severe liquidity mismatch (₹12Cr cash vs 
+            ₹340Cr liabilities)
+         3. Forced selling risk if stock falls and 
+            lenders invoke pledge
+```
+
+---
+
+### Ability 7 — Summarize Long Indian Documents
+```
+Input  : [SUMMARY] {paste 50-page RBI circular}
+
+Output : This RBI Master Direction updates KYC norms 
+         for regulated entities. Key changes: Aadhaar 
+         OTP-based KYC now permitted for all account 
+         types, V-CIP video verification extended to 
+         NBFCs, periodic KYC update interval increased 
+         from 2 to 5 years for low-risk customers...
+```
+
+---
+
+### Ability 8 — Understand SEBI/RBI Q&A
+```
+Input  : [REGULATORY] What is the lock-in period 
+          for anchor investors in an Indian IPO?
+
+Output : As per SEBI ICDR Regulations, anchor investors 
+         are subject to a 30-day lock-in from the date 
+         of allotment. For the portion allocated in 
+         excess of the minimum anchor investor 
+         allocation requirement (60%), an additional 
+         90-day lock-in applies...
+```
+
+---
+
+## What It Cannot Do (Honest)
+
+```
+❌ Real-time stock prices (no live data)
+❌ Predict market movements (nobody can)
+❌ Access the internet during inference
+❌ Read documents longer than ~16K tokens in one go
+❌ Give certified legal/tax advice
+❌ Hindi or regional language natively 
+   (IndicTrans2 bridge handles translation)
+```
+
+---
+
+## The Big Picture
+
+```
+Everything going IN                  What comes OUT
+─────────────────────────────────────────────────────────
+76 years of Union Budgets         → Understands fiscal policy
+RBI circulars since 1935          → Knows every banking rule
+5,000 companies' annual reports   → Reads balance sheets
+10,000 earnings transcripts       → Speaks corporate finance
+15 years of ET/MC/Mint            → Knows Indian market language
+arXiv research papers             → Reasons quantitatively
+ICAI CA material                  → Professional accounting depth
+Fed, IMF, World Bank docs         → Global macro context
+Synthetic Q&A pairs               → Knows HOW to answer questions
+─────────────────────────────────────────────────────────
+RESULT: A model that thinks like a CA + analyst + 
+        journalist + regulator all combined.
+        
+        Specialized in India. 
+        Grounded in real documents.
+        Built from Pune. 🇮🇳
+```
+
+Ready to now move forward — Phase 3 positional encoding?
