@@ -1,0 +1,7 @@
+https://www.incometaxindia.gov.in/o/search/v1.0/search?nestedFields=embedded&page=1&pageSize=10&restrictFields=embedded.actions%2Cembedded.creator
+https://www.incometaxindia.gov.in/o/c/featureconfigurations/by-external-reference-code/CIRCULAR_KEY
+https://www.incometaxindia.gov.in/o/c/featureconfigurations/102704/featureYear?pageSize=-1
+https://www.incometaxindia.gov.in/o/headless-admin-taxonomy/v1.0/taxonomy-vocabularies/40196/taxonomy-categories?fields=taxonomyCategoryProperties%2Cid%2Cname&restrictFields=actions%2Ccreator&pageSize=-1
+https://www.incometaxindia.gov.in/o/headless-admin-taxonomy/v1.0/sites/20117/taxonomy-vocabularies?fields=externalReferenceCode%2Cid%2Cname&filter=name%20eq%20%27Circular%20And%20Notification%27&restrictFields=actions%2Ccreator
+https://www.incometaxindia.gov.in/o/c/globalconfigurations/by-external-reference-code/GLOBAL_CONFIGURATIONS
+https://www.incometaxindia.gov.in/o/c/globalconfigurations/?restrictFields=actions%2Ccreator%2CdateCreated%2CdateModified%2Ckeywords

@@ -1,0 +1,283 @@
+{
+  "aggregations": {
+    "sections_per_chapter": {
+      "buckets": [
+        {
+          "childrenAggregationResults": {},
+          "docCount": 7,
+          "key": "12509296"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 4,
+          "key": "13590315"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1377,
+          "key": "37776"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38134"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38137"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38140"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38143"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38146"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 1,
+          "key": "38149"
+        },
+        {
+          "childrenAggregationResults": {},
+          "docCount": 2,
+          "key": "38152"
+        }
+      ],
+      "errorDocCounts": 0,
+      "name": "sections_per_chapter",
+      "otherDocCounts": 1606
+    }
+  },
+  "items": [
+    {
+      "dateCreated": "2026-03-31T14:45:14Z",
+      "dateModified": "2026-04-06T05:54:32Z",
+      "description": "Circular No. 4/2026 PDF Circular-4-2026.pdf 2026-03-31 2026-03-31 2026-03-31 16:26 Evidence-Circular-no-4-2026.png",
+      "embedded": {
+        "availableLanguages": [
+          "en-US",
+          "hi-IN"
+        ],
+        "contentFields": [
+          {
+            "contentFieldValue": {
+              "data": "Circular No. 4/2026"
+            },
+            "dataType": "string",
+            "inputControl": "text",
+            "label": "Circular Number",
+            "name": "circularNotificationNumber",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": ""
+            },
+            "dataType": "string",
+            "inputControl": "text",
+            "label": "Summary",
+            "name": "summary",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": "PDF",
+              "value": "pdf"
+            },
+            "dataType": "string",
+            "inputControl": "radio",
+            "label": "Content Type",
+            "name": "selectType",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": ""
+            },
+            "dataType": "string",
+            "label": "Document Content",
+            "name": "documentContent",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": ""
+            },
+            "dataType": "string",
+            "label": "Foot Note",
+            "name": "footNote",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "document": {
+                "contentType": "Document",
+                "contentUrl": "/documents/d/guest/circular-4-2026-pdf",
+                "description": "",
+                "encodingFormat": "application/pdf",
+                "fileExtension": "pdf",
+                "id": 16971926,
+                "sizeInBytes": 559776,
+                "title": "Circular-4-2026.pdf"
+              }
+            },
+            "dataType": "document",
+            "label": "Upload PDF",
+            "name": "reportFile",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": "2026-03-31T00:00:00Z"
+            },
+            "dataType": "date",
+            "label": "Circular Date",
+            "name": "circularNotificationDate",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": "2026-03-31T00:00:00Z"
+            },
+            "dataType": "date",
+            "label": "Date of Upload",
+            "name": "uploadDate",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": "2026-03-31 16:26"
+            },
+            "dataType": "datetime",
+            "label": "Received Date",
+            "name": "receivedDate",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "document": {
+                "contentType": "Document",
+                "contentUrl": "/documents/d/guest/evidence-circular-no-4-2026-png",
+                "description": "",
+                "encodingFormat": "image/png",
+                "fileExtension": "png",
+                "id": 16971937,
+                "sizeInBytes": 236385,
+                "title": "Evidence-Circular-no-4-2026.png"
+              }
+            },
+            "dataType": "document",
+            "label": "Evidence Attachment",
+            "name": "evidenceAttachment",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": ""
+            },
+            "dataType": "integer",
+            "label": "Any Exception in Hours",
+            "name": "anyExceptionInHours",
+            "nestedContentFields": [],
+            "repeatable": false
+          },
+          {
+            "contentFieldValue": {
+              "data": ""
+            },
+            "dataType": "string",
+            "label": "Exception Reason",
+            "name": "exceptionReason",
+            "nestedContentFields": [],
+            "repeatable": false
+          }
+        ],
+        "contentStructureId": 36050,
+        "customFields": [],
+        "dateCreated": "2026-03-31T14:45:14Z",
+        "dateModified": "2026-04-06T05:54:32Z",
+        "datePublished": "2026-03-31T02:45:00Z",
+        "description": "",
+        "externalReferenceCode": "0b4939dd-40dd-26f7-5d4b-4c66cd25a966",
+        "friendlyUrlPath": "circular-no.-4/2026-referencing-by-document-identification-number-din-",
+        "id": 16971951,
+        "key": "16971949",
+        "keywords": [],
+        "neverExpire": true,
+        "numberOfComments": 0,
+        "priority": 0.0,
+        "relatedContents": [
+          {
+            "contentType": "StructuredContent",
+            "id": 4580297,
+            "title": "Section - 119"
+          }
+        ],
+        "renderedContents": [
+          {
+            "contentTemplateId": "2377390",
+            "contentTemplateName": "Circular Details Page Template",
+            "markedAsDefault": true,
+            "renderedContentURL": "https://www.incometaxindia.gov.in/o/headless-delivery/v1.0/structured-contents/16971951/rendered-content/2377390"
+          },
+          {
+            "contentTemplateId": "circular-details-page",
+            "contentTemplateName": "Circular Details Page",
+            "markedAsDefault": true,
+            "renderedContentURL": "https://www.incometaxindia.gov.in/o/headless-delivery/v1.0/structured-contents/16971951/rendered-content-by-display-page/circular-details-page"
+          }
+        ],
+        "siteId": 20117,
+        "structuredContentFolderId": 36054,
+        "subscribed": false,
+        "taxonomyCategoryBriefs": [
+          {
+            "taxonomyCategoryId": 37776,
+            "taxonomyCategoryName": "Circulars",
+            "taxonomyCategoryReference": {
+              "externalReferenceCode": "aaaddd9e-7071-8c09-9ba0-b700a3f1b69b",
+              "siteKey": "Guest"
+            }
+          },
+          {
+            "taxonomyCategoryId": 13590315,
+            "taxonomyCategoryName": "2026",
+            "taxonomyCategoryReference": {
+              "externalReferenceCode": "d18b2fe1-a17a-0ac0-faa6-746a4b53a387",
+              "siteKey": "Guest"
+            }
+          }
+        ],
+        "title": "Circular No. 4/2026 : Referencing by Document Identification Number (DIN)",
+        "uuid": "2cb58e9c-3d65-01ce-f47f-9c2454362c33"
+      },
+      "itemURL": "https://www.incometaxindia.gov.in/o/headless-delivery/v1.0/structured-contents/16971951",
+      "score": 0.0,
+      "title": "Circular No. 4/2026 : Referencing by Document Identification Number (DIN)"
+    }
+  ],
+  "lastPage": 1378,
+  "page": 1,
+  "pageSize": 1,
+  "totalCount": 1378
+}
