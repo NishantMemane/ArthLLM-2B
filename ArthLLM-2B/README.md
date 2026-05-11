@@ -1,4 +1,4 @@
-# 🇮🇳 ArthLLM
+ # 🇮🇳 ArthLLM
 
 > **ArthLLM** (Arth = अर्थ = Money/Meaning in Hindi/Sanskrit)  
 > *India's First 2 Billion Parameter Finance Language Model, Built from Scratch.*
