@@ -1,0 +1,107 @@
+# ArthLLM Data Architecture: The Deep Core
+
+ArthLLM is engineered to be a state-of-the-art **2.3B parameter Indian finance language model**. Unlike generalist models, ArthLLM’s intelligence is heavily grounded in high-density, reasoning-focused financial data. 
+
+This document provides a profound dissection of the 40–42 Billion Token data acquisition strategy, breaking down the exact methodologies, strategic intentions, and expected impact of every single byte of data.
+
+---
+
+## 1. Core Philosophy & Token Budget
+
+### The "English-Only" Strategy
+ArthLLM is strictly **English-only** at the weight level. All Hindi, Hinglish, or regional datasets have been purged from the pipeline. 
+* **Why?** By restricting the training corpus to English, the tokenizer can be optimized to a lean **32K vocabulary**. This prevents parameter bloat. Multilingual capabilities will be offloaded to a **Translation Bridge (IndicTrans2)** during inference. This ensures that every single parameter update during training is dedicated to learning *financial reasoning*, rather than mapping linguistic syntax.
+
+### The Macro Math
+* **Pre-Deduplication Target:** ~42.5 Billion Tokens.
+* **Deduplication Loss:** 5-8% (Quality curated sources have significantly lower duplication than raw web crawls).
+* **Final Training Volume:** ~39–40 Billion Tokens (Perfectly aligning with Chinchilla optimal scaling laws for a 2B parameter model).
+* **Ratio:** 60% Indian English (~25.3B) / 40% Global English (~17.2B).
+
+---
+
+## 2. The 9-Stage Data Acquisition Pipeline
+
+### Section 1: HuggingFace Datasets (~4B Tokens) | *The Global Baseline*
+This is the frictionless foundation tier. It requires no scraping and provides highly structured, clean data. 
+* **`eloukas/edgar-corpus` (~3B tokens):** The full text of US SEC 10-K annual filings. This massive corpus teaches the model the universal, structural language of corporate financial reporting.
+* **Instruction Tuning (~150M tokens):** `sujet-ai/Sujet-Finance-Instruct-177k` and `gbharti/finance-alpaca`. This teaches the model *how* to answer prompts conversationally while retaining financial accuracy.
+* **Specialized Classifiers (~100M tokens):** `FinGPT/fingpt-sentiment-train` and `zeroshot/twitter-financial-news` for native sentiment analysis.
+
+### Section 2: Indian Government & Regulatory (~7B Tokens) | *The Moat*
+This is ArthLLM’s unique advantage. It is the "Law and Policy Layer," sourced entirely from official portals using HTTP requests, BeautifulSoup, and `pdfplumber`.
+* **Reserve Bank of India (~3B):** Over 30 years of Annual Reports, 10,000+ Circulars, Master Directions, and MPC (Monetary Policy Committee) statements. **Impact:** The model internalizes the mechanics of Indian banking, repo rates, and inflation dynamics.
+* **SEBI (~1.5B):** All circulars since 1992, LODR regulations, Insider Trading rules, and NCLT orders. **Impact:** The model becomes a regulatory compliance expert.
+* **Ministry of Finance (~500M):** 76 years of Union Budget speeches and Economic Surveys.
+* **Others (~2B):** MCA (Companies Act 2013), IRDAI, GST Council, CBDT, and FEMA.
+
+### Section 3: Stock Exchange Filings (~6B Tokens) | *Corporate Reality*
+Extracting the reality of how 5,000+ Indian companies operate.
+* **BSE & NSE Filings (~4B):** Extracted via Selenium (with randomized delays/User-Agent rotation) and session-cookie JSON bypasses. Includes Annual Reports, Quarterly Results, Shareholding Patterns (Promoter/FII/DII), and Insider Trading Disclosures.
+* **Earnings Call Transcripts (~2B):** Scraped from Screener.in, Trendlyne, and Tijori Finance. **Impact:** Teaches the model how management speaks, how they explain margin compressions, and how analysts ask questions.
+
+### Section 4 & 5: News & Market Narrative (~9B Tokens)
+The "Daily Pulse" of the markets, extracted entirely via **Common Crawl** (using `cdx-toolkit` to map WARC byte ranges, processed with `trafilatura` for clean text).
+* **Indian Financial News (~6B):** 15+ years of archives from Economic Times (1.5B), Moneycontrol (1.2B), LiveMint, Business Standard, etc. 
+* **Global Financial News (~3B):** Reuters, CNBC, FT, WSJ.
+* **Impact:** The model learns sentiment, cause-and-effect relationships (e.g., "Why did Nifty crash when the Fed hiked rates?"), and the standard tone of financial journalism.
+
+### Section 6: Global Finance & Regulatory (~6B Tokens) | *Macro Context*
+Why does an Indian LLM need global data? Because Indian markets don't exist in isolation.
+* **Sources:** Extended SEC EDGAR API (10-Q, 8-K, S-1), Federal Reserve minutes, ECB, Bank for International Settlements (BIS), IMF, World Bank, and 1B tokens of Wikipedia Finance.
+* **Impact:** Teaches cross-market macroeconomics. The model learns how a US rate hike impacts global bond yields, which in turn impacts FII flows into Indian equities, ultimately putting pressure on the Rupee (USD/INR).
+
+### Section 7 & 8: Academia & Textbooks (~7B Tokens) | *Deep Knowledge*
+This is where the model achieves professional-grade depth.
+* **Research Papers (~4B):** arXiv (q-fin, econ categories) providing massive density of expert knowledge per token (average 15,000 tokens per paper). Includes SSRN, NBER, and IIM working papers.
+* **ICAI Study Material (~800M):** The official Chartered Accountancy (CA) syllabus. **Impact:** Teaches precise accounting standards (Ind AS), taxation, and auditing principles.
+* **Books (~2B):** MIT OpenCourseWare, OpenStax, NCERT Economics, and Zerodha Varsity. 
+
+### Section 9: Synthetic Generation (~2B Tokens) | *The Teaching Layer*
+Raw documents are not enough; the model must be explicitly taught *how* to reason. Using Gemini/Claude APIs, 1.4 million synthetic Q&A pairs will be generated from the collected documents.
+* **Task Types:** Explaining SEBI circulars to retail investors, summarizing quarterly results, converting Lakh/Crore numbering natively, and cross-market reasoning.
+
+---
+
+## 3. The Data Sanitization Pipeline (The Purity Check)
+Before a single token enters the training cluster, it passes a rigorous 9-step quality filter:
+1. **HTML Stripping:** Complete removal of nav elements, footers, cookie banners.
+2. **Rupee Normalization:** Standardizing Rs., Rs, INR, to `₹`.
+3. **Number Formatting Preservation:** Crucially, ensuring `1,00,00,000` remains as-is and is *not* converted to Western `10,000,000`.
+4. **Minimum Length:** Dropping documents under 100 characters.
+5. **Relevance Gating:** Requiring at least one core finance keyword per document.
+6. **Language Strictness:** Aggressive dropping of non-English text.
+7. **Deduplication:** MinHash LSH at 85% Jaccard similarity to prevent news-cycle over-representation.
+8. **Encoding:** Fixing PDF extraction artifacts (broken ligatures).
+9. **PII Removal:** Stripping scraped emails and phone numbers.
+
+---
+
+## 4. Final Model Capabilities (What ArthLLM Will Actually Do)
+
+By stacking these layers, ArthLLM is effectively a synthesis of a Chartered Accountant, Financial Analyst, Market Journalist, and Regulator.
+
+### What it CAN do natively:
+* **Native Indian Numbers:** It will read "PAT of ₹1,25,43,000" and immediately understand it as ₹1.25 crore.
+* **Analyst-level Summaries:** Paste a raw BSE filing, and it will output an analysis highlighting margin compressions, working capital deterioration, and YoY topline growth.
+* **Regulatory Translation:** It can read a dense 50-page RBI Master Direction and explain exactly what it means for a retail NBFC customer in plain English.
+* **Macro Connective Reasoning:** It can flawlessly explain the ripple effect of a global event (e.g., US Treasury yields spiking) on the Nifty 50 and the Indian Rupee.
+* **Risk Detection:** It can flag severe liquidity mismatches or excessive promoter pledging in raw text.
+
+### What it CANNOT do:
+* Access real-time stock prices or predict the market.
+* Provide legally certified tax or investment advice.
+* Read natively in Hindi/Regional languages (handled externally by IndicTrans2).
+* Ingest documents larger than its designed context window (~16K tokens).
+
+---
+
+## The Big Picture
+ArthLLM is not just downloading data; it is carefully constructing a financial brain. 
+* 76 years of Union Budgets → **Understands fiscal policy**
+* 5,000 corporate annual reports → **Reads balance sheets**
+* 15 years of ET/Mint archives → **Knows market language**
+* ICAI CA material → **Professional accounting depth**
+* Synthetic Q&A → **Knows HOW to answer user questions**
+
+The end result is an AI that doesn't just recognize financial words, but deeply comprehends the intricate mechanics of the Indian and Global economy.
