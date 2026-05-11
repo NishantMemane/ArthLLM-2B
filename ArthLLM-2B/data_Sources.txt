@@ -969,7 +969,6 @@ RESULT: A model that thinks like a CA + analyst +
         
         Specialized in India. 
         Grounded in real documents.
-        Built from Pune. 🇮🇳
+       
 ```
 
-Ready to now move forward — Phase 3 positional encoding?
